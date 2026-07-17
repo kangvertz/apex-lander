@@ -18,19 +18,29 @@
         </header>
 
         <div class="copy-lower" id="top">
-          <h1>Something big is<br />on the <em>horizon.</em></h1>
-          <p class="description">Apex Studio aims to create quality, affordable and reliable websites. Targeting small to medium-sized businesses in South Africa.</p>
-
-          <form class="notify-form" id="notify-form">
-            <label class="sr-only" for="email">Email address</label>
-            <input id="email" type="email" placeholder="you@company.com" required />
-            <button type="submit">Get Notified <span aria-hidden="true">→</span></button>
-          </form>
-          <p class="form-note" id="form-note">Stay tuned.</p>
+          <h1>Something big is<br />on the <em class="headline-em" id="headline-em"><span class="headline-word is-visible" data-scene="horizon" aria-hidden="false">horizon.</span><span class="headline-word" data-scene="way" aria-hidden="true">way.</span></em></h1>
+          <p class="description">Apex Studio aims to create quality, affordable and amazing websites. Targeting small to medium-sized businesses in South Africa.</p>
         </div>
 
         <div class="bottom-meta">
-          <div class="waitlist"><span class="avatar-stack" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>542+</strong> PEOPLE ALREADY JOINED THE WAITLIST</span></div>
+          <div class="signup-block">
+            <form class="notify-form" id="notify-form">
+              <label class="sr-only" for="email">Email address</label>
+              <input id="email" type="email" placeholder="you@company.com" required />
+              <button type="submit">Get Notified <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="form-note" id="form-note">Stay tuned.</p>
+          </div>
+
+          <div class="waitlist">
+            <span class="avatar-stack" aria-hidden="true">
+              <img src="assets/avatars/avatar-1.svg" alt="" width="24" height="24" />
+              <img src="assets/avatars/avatar-2.svg" alt="" width="24" height="24" />
+              <img src="assets/avatars/avatar-3.svg" alt="" width="24" height="24" />
+              <img src="assets/avatars/avatar-4.svg" alt="" width="24" height="24" />
+            </span>
+            <span><strong>542+</strong> PEOPLE ALREADY JOINED THE WAITLIST</span>
+          </div>
           <div class="trusted">
             <p>TRUSTED BY TEAMS BUILDING AT</p>
             <div class="logo-marquee" id="logo-marquee" aria-hidden="true">
@@ -53,8 +63,16 @@
           available or the visitor has reduced-motion enabled.
         -->
         <canvas class="liquid-canvas" id="liquid-canvas" aria-hidden="true"></canvas>
-        <img class="liquid-art" id="liquid-fallback-img" src="assets/hero.jpg" alt="Apex Studio artwork placeholder" style="display:none" />
+        <div class="liquid-art-stack" id="liquid-art-stack" aria-hidden="true">
+          <img class="liquid-art is-active" id="liquid-fallback-a" src="assets/hero.jpg" alt="" />
+          <img class="liquid-art" id="liquid-fallback-b" src="assets/hero.jpg" alt="" />
+        </div>
         <div class="liquid-grain-overlay" aria-hidden="true"></div>
+
+        <button type="button" class="scene-toggle" id="scene-toggle" aria-pressed="false" aria-label="Switch to night view">
+          <span class="scene-toggle-icon" aria-hidden="true">◐</span>
+          <span class="scene-toggle-label">Night view</span>
+        </button>
 
         <div class="liquid-corner">A / 01</div>
       </section>

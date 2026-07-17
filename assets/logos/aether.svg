@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148 32" fill="none">
+  <path d="M6 26L16 6l10 20" stroke="#e8e8e8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M9.5 19h13" stroke="#e8e8e8" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="16" cy="6" r="2.2" fill="#db7512"/>
+  <text x="34" y="22" font-family="DM Sans, Arial, sans-serif" font-size="17" font-weight="600" letter-spacing="0.14em" fill="#e8e8e8">AETHER</text>
+</svg>

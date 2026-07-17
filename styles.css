@@ -4,6 +4,7 @@
   --dim: #929292;
   --line: #272727;
   --orange: #db7512;
+  --way-blue: #2a4a8a;
   --marquee-speed: 26s;
   /* lower = faster scroll */
   --marquee-gap: 56px
@@ -80,7 +81,7 @@ body {
 
 .copy-lower {
   margin-top: auto;
-  margin-bottom: 40px;
+  margin-bottom: clamp(28px, 5vh, 48px);
   max-width: 440px
 }
 
@@ -90,13 +91,39 @@ body {
   margin: 28px 0px 18px;
 }
 
-.copy-lower h1 em {
+.copy-lower h1 em,
+.headline-em {
   font-family: "Instrument Serif", serif;
   font-style: italic;
   font-weight: 400;
   font-size: 1.08em;
   letter-spacing: 0;
+  display: inline-grid;
+  vertical-align: baseline;
+}
+
+.headline-word {
+  grid-area: 1 / 1;
+  display: inline-block;
+  transition: opacity .65s ease, transform .65s ease, color .65s ease;
+  opacity: 0;
+  transform: translateY(.42em);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.headline-word.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.headline-word[data-scene="horizon"] {
   color: var(--orange);
+}
+
+.headline-word[data-scene="way"] {
+  color: var(--way-blue);
 }
 
 .description {
@@ -104,7 +131,18 @@ body {
   max-width: 370px;
   font-size: 16px;
   line-height: 1.62;
-  margin: 0 0 42px;
+  margin: 0;
+}
+
+.signup-block {
+  margin-bottom: clamp(18px, 3vh, 24px);
+}
+
+.bottom-meta {
+  margin-top: auto;
+  width: 100%;
+  max-width: 440px;
+  padding-top: 0;
 }
 
 .notify-form {
@@ -163,11 +201,7 @@ body {
 .form-note {
   color: #656565;
   font-size: 10px;
-  margin: 10px 8px
-}
-
-.bottom-meta {
-  margin-top: auto
+  margin: 10px 8px 0
 }
 
 .waitlist {
@@ -188,31 +222,19 @@ body {
   display: flex
 }
 
-.avatar-stack i {
+.avatar-stack img {
   display: block;
   width: 24px;
   height: 24px;
   border: 2px solid #080808;
   border-radius: 50%;
   margin-left: -6px;
-  background: linear-gradient(145deg, #62e4ef, #202736 54%, #f7a040)
+  object-fit: cover;
+  background: #141414;
 }
 
-.avatar-stack i:first-child {
+.avatar-stack img:first-child {
   margin-left: 0;
-  background: linear-gradient(145deg, #77d9e8, #0c2030 55%, #a1a1a1)
-}
-
-.avatar-stack i:nth-child(2) {
-  background: linear-gradient(145deg, #c6b37e, #183340 52%, #d6f1e0)
-}
-
-.avatar-stack i:nth-child(3) {
-  background: linear-gradient(145deg, #6b4e37, #869a67 48%, #e5c741)
-}
-
-.avatar-stack i:last-child {
-  background: linear-gradient(145deg, #f3e6c5, #d7b130 55%, #171717)
 }
 
 .trusted {
@@ -245,10 +267,10 @@ body {
 
 .logo-track img {
   flex: 0 0 auto;
-  height: 22px;
+  height: 24px;
   width: auto;
-  opacity: .6;
-  filter: grayscale(1) brightness(1.7);
+  opacity: .72;
+  filter: grayscale(1) brightness(1.55);
   transition: opacity .2s ease
 }
 
@@ -268,6 +290,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .logo-track {
     animation: none
+  }
+
+  .headline-word {
+    transition: none;
+  }
+
+  .liquid-art-stack .liquid-art {
+    transition: none;
   }
 }
 
@@ -308,12 +338,32 @@ body {
   touch-action: none
 }
 
-.liquid-art {
+.liquid-art-stack {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.liquid-art-stack .liquid-art {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .85s ease;
+}
+
+.liquid-art-stack .liquid-art.is-active {
+  opacity: 1;
+}
+
+.liquid-art-stack.is-fallback-visible {
+  display: block;
+}
+
+.liquid-art-stack:not(.is-fallback-visible) {
+  display: none;
 }
 
 .liquid-grain-overlay {
@@ -363,27 +413,90 @@ body {
   right: 40px
 }
 
+.scene-toggle {
+  position: absolute;
+  z-index: 2;
+  left: 40px;
+  bottom: 35px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, .82);
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.scene-toggle:hover {
+  background: rgba(0, 0, 0, .52);
+  border-color: rgba(255, 255, 255, .32);
+  color: #fff;
+}
+
+.scene-toggle[aria-pressed="true"] {
+  border-color: rgba(42, 74, 138, .55);
+  color: #b8c9e8;
+}
+
+.scene-toggle-icon {
+  font-size: 12px;
+  line-height: 1;
+  opacity: .85;
+}
+
 @media(max-width:850px) {
   .landing-shell {
     grid-template-columns: 1fr
   }
 
   .copy-panel {
-    min-height: 790px;
-    padding: 31px 8vw 28px
+    min-height: auto;
+    padding: clamp(28px, 6vh, 40px) 8vw clamp(24px, 5vh, 32px)
   }
 
   .copy-lower {
+    margin-top: clamp(24px, 5vh, 40px);
+    margin-bottom: clamp(20px, 4vh, 32px)
+  }
+
+  .bottom-meta {
     margin-top: auto;
-    margin-bottom: 35px
+    max-width: none
+  }
+
+  .signup-block {
+    margin-bottom: clamp(16px, 3vh, 22px);
+  }
+
+  .waitlist {
+    white-space: normal;
+    flex-wrap: wrap;
+    row-gap: 6px
   }
 
   .trusted {
-    margin-top: 95px
+    margin-top: clamp(28px, 7vh, 64px)
   }
 
   .liquid-panel {
-    min-height: 540px
+    min-height: 0;
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    max-height: min(72vh, 640px);
+    min-height: clamp(300px, 52vh, 520px);
+  }
+
+  .liquid-canvas,
+  .liquid-art {
+    object-position: center center;
   }
 
   .liquid-label {
@@ -395,22 +508,29 @@ body {
     bottom: 24px;
     right: 24px
   }
+
+  .scene-toggle {
+    left: 24px;
+    bottom: 24px;
+  }
 }
 
 @media(max-width:500px) {
   .copy-panel {
-    min-height: 750px;
     padding-left: 7vw;
     padding-right: 7vw
   }
 
   .copy-lower h1 {
-    font-size: 50px
+    font-size: clamp(30px, 9vw, 42px)
   }
 
   .description {
     font-size: 13px;
-    margin-bottom: 28px
+  }
+
+  .signup-block {
+    margin-bottom: 16px;
   }
 
   .notify-form {
@@ -442,7 +562,7 @@ body {
   }
 
   .trusted {
-    margin-top: 80px
+    margin-top: clamp(24px, 6vh, 48px)
   }
 
   .logo-track {
@@ -450,15 +570,49 @@ body {
   }
 
   .logo-track img {
-    height: 18px
+    height: 20px
   }
 
   .footer-bar {
-    font-size: 9px
+    font-size: 9px;
+    flex-wrap: wrap;
+    row-gap: 8px
   }
 
   .footer-bar nav {
     gap: 10px
+  }
+
+  .liquid-panel {
+    aspect-ratio: 4 / 5;
+    min-height: clamp(280px, 48vh, 440px);
+    max-height: 68vh;
+  }
+
+  .scene-toggle {
+    left: 16px;
+    bottom: 16px;
+    padding: 9px 12px;
+    font-size: 9px;
+  }
+}
+
+@media(max-width:360px) {
+  .copy-panel {
+    padding-left: 6vw;
+    padding-right: 6vw
+  }
+
+  .copy-lower h1 {
+    font-size: clamp(26px, 9vw, 34px)
+  }
+
+  .waitlist {
+    font-size: 8px
+  }
+
+  .footer-bar nav {
+    gap: 8px
   }
 }
 

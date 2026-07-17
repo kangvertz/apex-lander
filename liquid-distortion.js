@@ -2,24 +2,57 @@
   "use strict";
 
   var canvas = document.querySelector("#liquid-canvas");
-  var fallbackImg = document.querySelector("#liquid-fallback-img");
-  if (!canvas || !fallbackImg) return;
+  var fallbackStack = document.querySelector("#liquid-art-stack");
+  var fallbackA = document.querySelector("#liquid-fallback-a");
+  var fallbackB = document.querySelector("#liquid-fallback-b");
+  if (!canvas || !fallbackStack || !fallbackA || !fallbackB) return;
 
   // ---- Tunable settings (mirrors the Framer component's property controls) ----
   // Adjust these to change how the effect looks/feels.
   var SETTINGS = {
-    imageSrc: fallbackImg.getAttribute("src"), // reads assets/hero.jpg automatically
+    imageSrc: fallbackA.getAttribute("src"), // reads assets/hero.jpg automatically
     intensity: 0.35, // ambient flow strength
     hoverIntensity: 0.7, // ripple strength that follows the pointer
     clickIntensity: 1, // burst strength on click/tap
     speed: 1, // ambient flow speed
     frequency: 3, // noise frequency — higher = smaller, tighter ripples
+    crossfadeDuration: 0.85, // seconds for scene image crossfade
   };
 
   function showFallback() {
     canvas.style.display = "none";
-    fallbackImg.style.display = "block";
+    fallbackStack.classList.add("is-fallback-visible");
   }
+
+  function crossfadeFallback(src) {
+    if (!src || src === SETTINGS.imageSrc) return;
+    var active = fallbackA.classList.contains("is-active") ? fallbackA : fallbackB;
+    var inactive = active === fallbackA ? fallbackB : fallbackA;
+
+    function activateFallback() {
+      active.classList.remove("is-active");
+      inactive.classList.add("is-active");
+      SETTINGS.imageSrc = src;
+    }
+
+    if (inactive.getAttribute("src") === src && inactive.complete) {
+      activateFallback();
+      return;
+    }
+
+    inactive.src = src;
+    if (inactive.complete) {
+      activateFallback();
+      return;
+    }
+    inactive.onload = activateFallback;
+  }
+
+  window.liquidDistortion = {
+    setImage: function (src) {
+      crossfadeFallback(src);
+    },
+  };
 
   var prefersReducedMotion =
     window.matchMedia &&
@@ -54,6 +87,8 @@
     "precision mediump float;" +
     "varying vec2 vUv;" +
     "uniform sampler2D uTexture;" +
+    "uniform sampler2D uTextureNext;" +
+    "uniform float uCrossfade;" +
     "uniform vec2 uResolution;" +
     "uniform vec2 uImageResolution;" +
     "uniform vec2 uMouse;" +
@@ -117,7 +152,9 @@
     "  float burstRipple = sin(d * (65.0 + uFrequency * 7.0) - t * 11.0);" +
     "  displacement += dir * burstRipple * burstInfluence * (uClickIntensity * 0.09);" +
     "  vec2 sampleUv = clamp(uv + displacement, 0.0, 1.0);" +
-    "  gl_FragColor = texture2D(uTexture, sampleUv);" +
+    "  vec4 colA = texture2D(uTexture, sampleUv);" +
+    "  vec4 colB = texture2D(uTextureNext, sampleUv);" +
+    "  gl_FragColor = mix(colA, colB, clamp(uCrossfade, 0.0, 1.0));" +
     "}";
 
   function createShader(type, source) {
@@ -152,6 +189,8 @@
 
   var positionLocation = gl.getAttribLocation(program, "aPosition");
   var uTexture = gl.getUniformLocation(program, "uTexture");
+  var uTextureNext = gl.getUniformLocation(program, "uTextureNext");
+  var uCrossfade = gl.getUniformLocation(program, "uCrossfade");
   var uResolution = gl.getUniformLocation(program, "uResolution");
   var uImageResolution = gl.getUniformLocation(program, "uImageResolution");
   var uMouse = gl.getUniformLocation(program, "uMouse");
@@ -190,9 +229,32 @@
     new Uint8Array([0, 0, 0, 255])
   );
 
+  var textureNext = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, textureNext);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    1,
+    1,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    new Uint8Array([0, 0, 0, 255])
+  );
+
   var imageWidth = 1;
   var imageHeight = 1;
   var disposed = false;
+  var crossfade = 0;
+  var crossfadeAnimating = false;
+  var pendingImage = null;
+  var pendingSrc = null;
 
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -211,25 +273,68 @@
 
   var textureImage = new Image();
   textureImage.crossOrigin = "anonymous";
-  textureImage.onload = function () {
-    if (disposed) return;
-    imageWidth = textureImage.naturalWidth || 1;
-    imageHeight = textureImage.naturalHeight || 1;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+  function bindTextureData(targetTexture, image) {
+    gl.bindTexture(gl.TEXTURE_2D, targetTexture);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.RGBA,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      textureImage
+      image
     );
+  }
+
+  function uploadTexture(image) {
+    imageWidth = image.naturalWidth || 1;
+    imageHeight = image.naturalHeight || 1;
+    bindTextureData(texture, image);
+  }
+
+  function finishCrossfade() {
+    if (!pendingImage) return;
+    uploadTexture(pendingImage);
+    SETTINGS.imageSrc = pendingSrc;
+    crossfade = 0;
+    crossfadeAnimating = false;
+    pendingImage = null;
+    pendingSrc = null;
+  }
+
+  textureImage.onload = function () {
+    if (disposed) return;
+    uploadTexture(textureImage);
+    bindTextureData(textureNext, textureImage);
   };
   textureImage.onerror = function () {
     if (disposed) return;
     showFallback();
   };
   textureImage.src = SETTINGS.imageSrc;
+
+  window.liquidDistortion = {
+    setImage: function (src) {
+      if (!src || (src === SETTINGS.imageSrc && !crossfadeAnimating)) return;
+
+      var swapImage = new Image();
+      swapImage.crossOrigin = "anonymous";
+      swapImage.onload = function () {
+        if (disposed) return;
+        pendingSrc = src;
+        pendingImage = swapImage;
+        bindTextureData(textureNext, swapImage);
+        crossfade = 0;
+        crossfadeAnimating = true;
+        crossfadeFallback(src);
+      };
+      swapImage.onerror = function () {
+        if (disposed) return;
+        showFallback();
+        crossfadeFallback(src);
+      };
+      swapImage.src = src;
+    },
+  };
 
   var mouseTarget = { x: 0.5, y: 0.5 };
   var mouseCurrent = { x: 0.5, y: 0.5 };
@@ -279,12 +384,22 @@
     hoverCurrent += (hoverTarget - hoverCurrent) * 0.08;
     clickImpulse *= Math.exp(-delta * 4.2);
 
+    if (crossfadeAnimating) {
+      crossfade = Math.min(
+        1,
+        crossfade + delta / Math.max(SETTINGS.crossfadeDuration, 0.001)
+      );
+      if (crossfade >= 1) finishCrossfade();
+    }
+
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
     gl.uniform1i(uTexture, 0);
+    gl.uniform1i(uTextureNext, 1);
+    gl.uniform1f(uCrossfade, crossfade);
     gl.uniform2f(uResolution, canvas.width, canvas.height);
     gl.uniform2f(uImageResolution, imageWidth, imageHeight);
     gl.uniform2f(uMouse, mouseCurrent.x, mouseCurrent.y);
@@ -298,6 +413,8 @@
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, textureNext);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
     rafId = window.requestAnimationFrame(render);
