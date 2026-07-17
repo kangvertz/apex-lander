@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <title>Apex Studio — Something big is on the horizon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="landing-shell">
+      <section class="copy-panel" aria-label="Apex Studio announcement">
+        <header class="brand-bar">
+          <a href="#top" class="brand"><span class="prompt">&gt;</span><span class="brand-text"></span><span class="brand-cursor">_</span></a>
+        </header>
+
+        <div class="copy-lower" id="top">
+          <h1>Something big is<br />on the <em>horizon.</em></h1>
+          <p class="description">Apex Studio aims to create quality, affordable and reliable websites. Targeting small to medium-sized businesses in South Africa.</p>
+
+          <form class="notify-form" id="notify-form">
+            <label class="sr-only" for="email">Email address</label>
+            <input id="email" type="email" placeholder="you@company.com" required />
+            <button type="submit">Get Notified <span aria-hidden="true">→</span></button>
+          </form>
+          <p class="form-note" id="form-note">Stay tuned.</p>
+        </div>
+
+        <div class="bottom-meta">
+          <div class="waitlist"><span class="avatar-stack" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><strong>542+</strong> PEOPLE ALREADY JOINED THE WAITLIST</span></div>
+          <div class="trusted">
+            <p>TRUSTED BY TEAMS BUILDING AT</p>
+            <div class="logo-marquee" id="logo-marquee" aria-hidden="true">
+              <div class="logo-track" id="logo-track"></div>
+            </div>
+            <p class="sr-only">Trusted by Aether, Perfect Days, Chromatic, and Rasala.</p>
+          </div>
+          <footer class="footer-bar"><span>© 2026 APEX STUDIO</span><nav><a href="#top">X.COM</a><a href="#top">FACEBOOK</a><a href="#top">EMAIL</a></nav></footer>
+        </div>
+      </section>
+
+      <section class="liquid-panel" id="liquid-panel" aria-label="Interactive liquid placeholder">
+        <div class="liquid-label"><span class="live-dot"></span> Hover to distort</div>
+
+        <!--
+          IMAGE PLACEHOLDER: drop your real photo/artwork into /assets and update
+          the src below (and the SETTINGS.imageSrc fallback read in liquid-distortion.js
+          reads this same src automatically). WebGL renders the distortion on the
+          canvas above this image; the <img> itself only shows if WebGL isn't
+          available or the visitor has reduced-motion enabled.
+        -->
+        <canvas class="liquid-canvas" id="liquid-canvas" aria-hidden="true"></canvas>
+        <img class="liquid-art" id="liquid-fallback-img" src="assets/hero.jpg" alt="Apex Studio artwork placeholder" style="display:none" />
+        <div class="liquid-grain-overlay" aria-hidden="true"></div>
+
+        <div class="liquid-corner">A / 01</div>
+      </section>
+    </main>
+    <script src="liquid-distortion.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
