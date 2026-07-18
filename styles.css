@@ -7,7 +7,7 @@
   --way-blue: #2a4a8a;
   --marquee-speed: 26s;
   /* lower = faster scroll */
-  --marquee-gap: 56px
+  --marquee-gap: 56px;
   /* space between logos */
 }
 
@@ -16,14 +16,16 @@
 }
 
 html {
-  scroll-behavior: smooth
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%
 }
 
 body {
   margin: 0;
   background: #000000;
   color: var(--white);
-  font-family: "DM Sans", sans-serif
+  font-family: "DM Sans", sans-serif;
+  overflow-x: hidden
 }
 
 .landing-shell {
@@ -81,7 +83,7 @@ body {
 
 .copy-lower {
   margin-top: auto;
-  margin-bottom: clamp(28px, 5vh, 48px);
+  margin-bottom: -42px;
   max-width: 440px
 }
 
@@ -146,17 +148,70 @@ body {
 }
 
 .notify-form {
-  height: 48px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: 52px;
   width: min(430px, 100%);
   display: flex;
   align-items: stretch;
-  gap: 2px;
-  background: #232323;
+  gap: 4px;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, .18), transparent 26%),
+    linear-gradient(135deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .035) 48%, rgba(255, 255, 255, .1));
+  border: 1px solid rgba(255, 255, 255, .16);
   border-radius: 999px;
-  padding: 4px
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .24),
+    inset 0 -18px 34px rgba(0, 0, 0, .24),
+    0 18px 50px rgba(0, 0, 0, .34);
+  padding: 5px;
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  transition: border-color .35s ease, box-shadow .35s ease, transform .35s ease, background .35s ease
+}
+
+.notify-form::before,
+.notify-form::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit
+}
+
+.notify-form::before {
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, .28) 38%, transparent 62%);
+  opacity: 0;
+  transform: translateX(-72%);
+}
+
+.notify-form::after {
+  z-index: -2;
+  width: 130px;
+  height: 130px;
+  right: 58px;
+  top: 50%;
+  background: radial-gradient(circle, rgba(219, 117, 18, .32), transparent 66%);
+  filter: blur(12px);
+  opacity: .55;
+  transform: translateY(-50%);
+  transition: opacity .35s ease, transform .45s ease
+}
+
+.notify-form:focus-within {
+  border-color: rgba(219, 117, 18, .48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .28),
+    inset 0 -18px 34px rgba(0, 0, 0, .22),
+    0 0 0 4px rgba(219, 117, 18, .08),
+    0 20px 56px rgba(0, 0, 0, .38)
 }
 
 .notify-form input {
+  position: relative;
+  z-index: 1;
   flex: 1;
   min-width: 0;
   background: transparent;
@@ -164,27 +219,48 @@ body {
   outline: 0;
   color: #f2f2f2;
   font-size: 13px;
-  padding-left: 13px
+  padding-left: 15px
 }
 
 .notify-form input::placeholder {
-  color: #929292
+  color: rgba(242, 240, 237, .52)
+}
+
+.notify-form input:disabled {
+  color: rgba(242, 240, 237, .54);
+  -webkit-text-fill-color: rgba(242, 240, 237, .54)
 }
 
 .notify-form button {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
   flex: 0 0 auto;
   height: auto;
   padding: 0 20px;
   border: 0;
   border-radius: 999px;
-  background: #f0edf0;
+  background: rgba(240, 237, 240, .9);
   color: #0a0a0a;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: transform .2s ease, background .2s ease
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .72),
+    0 8px 24px rgba(0, 0, 0, .22);
+  transition: transform .28s ease, background .28s ease, color .28s ease, box-shadow .28s ease
+}
+
+.notify-form button::before {
+  content: "";
+  position: absolute;
+  inset: -40% -70%;
+  background: linear-gradient(110deg, transparent 34%, rgba(255, 255, 255, .72) 50%, transparent 66%);
+  opacity: 0;
+  transform: translateX(-38%);
+  transition: transform .55s ease, opacity .35s ease
 }
 
 .notify-form button:hover {
@@ -192,16 +268,94 @@ body {
   background: #fff
 }
 
+.notify-form button:hover::before {
+  opacity: .55;
+  transform: translateX(38%)
+}
+
+.notify-form button:disabled {
+  cursor: default
+}
+
 .notify-form button span {
+  position: relative;
+  z-index: 1;
   font-size: 18px;
   vertical-align: -1px;
-  margin-left: 10px
+  margin-left: 10px;
+  transition: transform .3s ease
+}
+
+.notify-form.is-submitted {
+  border-color: rgba(219, 117, 18, .62);
+  background:
+    radial-gradient(circle at 78% 50%, rgba(219, 117, 18, .28), transparent 30%),
+    linear-gradient(135deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .04) 48%, rgba(219, 117, 18, .12));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .3),
+    inset 0 -18px 34px rgba(0, 0, 0, .2),
+    0 0 0 5px rgba(219, 117, 18, .1),
+    0 22px 60px rgba(0, 0, 0, .4);
+  animation: notify-confirm .65s cubic-bezier(.2, .85, .25, 1.25)
+}
+
+.notify-form.is-submitted::before {
+  animation: notify-sheen .82s ease forwards
+}
+
+.notify-form.is-submitted::after {
+  opacity: .9;
+  transform: translateY(-50%) scale(1.22)
+}
+
+.notify-form.is-submitted button {
+  background: #db7512;
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .38),
+    0 10px 28px rgba(219, 117, 18, .28)
+}
+
+.notify-form.is-submitted button span {
+  transform: scale(1.18) rotate(6deg)
+}
+
+@keyframes notify-confirm {
+  0% {
+    transform: scale(1)
+  }
+  44% {
+    transform: scale(1.025)
+  }
+  100% {
+    transform: scale(1)
+  }
+}
+
+@keyframes notify-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-78%)
+  }
+  18% {
+    opacity: .9
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(72%)
+  }
 }
 
 .form-note {
   color: #656565;
   font-size: 10px;
-  margin: 10px 8px 0
+  margin: 10px 8px 0;
+  transition: color .3s ease, transform .3s ease, opacity .3s ease
+}
+
+.notify-form.is-submitted + .form-note {
+  opacity: 1;
+  transform: translateY(1px)
 }
 
 .waitlist {
@@ -298,6 +452,17 @@ body {
 
   .liquid-art-stack .liquid-art {
     transition: none;
+  }
+
+  .notify-form,
+  .notify-form::before,
+  .notify-form::after,
+  .notify-form button,
+  .notify-form button::before,
+  .notify-form button span,
+  .form-note {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -454,17 +619,20 @@ body {
 
 @media(max-width:850px) {
   .landing-shell {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
+    min-height: auto;
+    overflow: visible
   }
 
   .copy-panel {
     min-height: auto;
-    padding: clamp(28px, 6vh, 40px) 8vw clamp(24px, 5vh, 32px)
+    padding: clamp(28px, 6vh, 40px) clamp(24px, 8vw, 56px) clamp(24px, 5vh, 32px);
+    padding: clamp(28px, 6svh, 40px) clamp(24px, 8vw, 56px) clamp(24px, 5svh, 32px)
   }
 
   .copy-lower {
     margin-top: clamp(24px, 5vh, 40px);
-    margin-bottom: clamp(20px, 4vh, 32px)
+    margin-bottom: 18px
   }
 
   .bottom-meta {
@@ -488,10 +656,11 @@ body {
 
   .liquid-panel {
     min-height: 0;
+    height: clamp(320px, 54vh, 560px);
+    height: clamp(320px, 54svh, 560px);
     width: 100%;
-    aspect-ratio: 5 / 4;
-    max-height: min(72vh, 640px);
-    min-height: clamp(300px, 52vh, 520px);
+    aspect-ratio: auto;
+    max-height: none;
   }
 
   .liquid-canvas,
@@ -517,16 +686,17 @@ body {
 
 @media(max-width:500px) {
   .copy-panel {
-    padding-left: 7vw;
-    padding-right: 7vw
+    padding: clamp(20px, 5vh, 28px) clamp(18px, 7vw, 28px) clamp(20px, 4vh, 28px);
+    padding: clamp(20px, 5svh, 28px) clamp(18px, 7vw, 28px) clamp(20px, 4svh, 28px)
   }
 
   .copy-lower h1 {
-    font-size: clamp(30px, 9vw, 42px)
+    font-size: clamp(30px, 2.625rem, 42px)
   }
 
   .description {
-    font-size: 13px;
+    font-size: 14px;
+    line-height: 1.55;
   }
 
   .signup-block {
@@ -534,26 +704,27 @@ body {
   }
 
   .notify-form {
-    height: auto;
-    background: transparent;
-    display: block;
-    padding: 0
+    height: 50px;
+    display: flex;
+    padding: 4px
   }
 
   .notify-form input {
     display: block;
-    width: 100%;
-    height: 48px;
-    border-radius: 999px;
-    background: #232323;
-    padding: 0 18px;
-    margin-bottom: 8px
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    padding: 0 0 0 14px;
+    margin-bottom: 0
   }
 
   .notify-form button {
-    width: 100%;
-    height: 46px;
-    justify-content: center
+    width: auto;
+    height: auto;
+    justify-content: center;
+    padding: 0 15px;
+    white-space: nowrap
   }
 
   .waitlist {
@@ -584,9 +755,8 @@ body {
   }
 
   .liquid-panel {
-    aspect-ratio: 4 / 5;
-    min-height: clamp(280px, 48vh, 440px);
-    max-height: 68vh;
+    height: clamp(280px, 48vh, 440px);
+    height: clamp(280px, 48svh, 440px);
   }
 
   .scene-toggle {
@@ -611,8 +781,58 @@ body {
     font-size: 8px
   }
 
+  .notify-form input {
+    font-size: 12px;
+    padding-left: 12px
+  }
+
+  .notify-form button {
+    padding: 0 12px;
+    font-size: 11px
+  }
+
+  .notify-form button span {
+    margin-left: 7px
+  }
+
   .footer-bar nav {
     gap: 8px
+  }
+}
+
+@media(max-width:500px) and (max-height:700px) {
+  .copy-panel {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .copy-lower {
+    margin-top: 18px;
+    margin-bottom: 14px;
+  }
+
+  .copy-lower h1 {
+    margin-top: 18px;
+    margin-bottom: 14px;
+    font-size: 30px;
+  }
+
+  .description {
+    font-size: 13px;
+    line-height: 1.48;
+  }
+
+  .signup-block {
+    margin-bottom: 14px;
+  }
+
+  .trusted {
+    margin-top: 20px;
+  }
+
+  .footer-bar {
+    margin-top: 18px;
+    padding-top: 14px;
   }
 }
 

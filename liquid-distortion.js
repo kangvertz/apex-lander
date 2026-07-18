@@ -10,7 +10,8 @@
   // ---- Tunable settings (mirrors the Framer component's property controls) ----
   // Adjust these to change how the effect looks/feels.
   var SETTINGS = {
-    imageSrc: fallbackA.getAttribute("src"), // reads assets/hero.jpg automatically
+    imageSrc: fallbackA.getAttribute("src"), // reads assets/hero.webp
+    //  automatically
     intensity: 0.35, // ambient flow strength
     hoverIntensity: 0.7, // ripple strength that follows the pointer
     clickIntensity: 1, // burst strength on click/tap

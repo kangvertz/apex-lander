@@ -1,5 +1,6 @@
 const form = document.querySelector('#notify-form');
 const note = document.querySelector('#form-note');
+if (note) note.setAttribute('aria-live', 'polite');
 
 // --- Typing logo (brand bar) ---
 const brandText = document.querySelector('.brand-text');
@@ -73,12 +74,12 @@ const sceneToggle = document.querySelector('#scene-toggle');
 const headlineWords = document.querySelectorAll('.headline-word');
 const SCENES = {
   horizon: {
-    image: 'assets/hero.jpg',
+    image: 'assets/hero.webp',
     toggleLabel: 'Night view',
     ariaLabel: 'Switch to night view',
   },
   way: {
-    image: 'assets/hero2.jpg',
+    image: 'assets/hero2.webp',
     toggleLabel: 'Day view',
     ariaLabel: 'Switch to day view',
   },
@@ -121,10 +122,15 @@ if (form) form.addEventListener('submit', (event) => {
   event.preventDefault();
   const email = document.querySelector('#email').value.trim();
   if (!email) return;
+  const button = form.querySelector('button');
+  const input = form.querySelector('input');
+
+  form.classList.add('is-submitted');
   note.textContent = activeScene === 'way'
     ? 'You’re on the list — see you on the way.'
     : 'You’re on the list — see you on the horizon.';
   note.style.color = activeScene === 'way' ? '#4a6aa8' : '#c98a39';
-  form.querySelector('button').innerHTML = 'You’re in <span aria-hidden="true">✓</span>';
-  form.querySelector('input').disabled = true;
+  button.innerHTML = 'You’re in <span aria-hidden="true">✓</span>';
+  button.disabled = true;
+  input.disabled = true;
 });
